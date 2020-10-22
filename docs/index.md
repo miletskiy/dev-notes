@@ -107,3 +107,6 @@ For full documentation visit [mkdocs.org](https://www.mkdocs.org).
     watch "kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified get pod -o wide | grep indi"
     
     kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified cp scripts/migrate.py vital-signs-service-production-support-6bf69c5585-g5wtm:/app/migrate.py
+
+## Git
+    git revert HEAD~1
