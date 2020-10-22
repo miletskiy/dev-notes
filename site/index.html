@@ -86,6 +86,10 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-level="2"><a href="#git" class="nav-link">Git</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -190,6 +194,9 @@ kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified logs individual-service-
 watch "kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified get pod -o wide | grep indi"
 
 kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified cp scripts/migrate.py vital-signs-service-production-support-6bf69c5585-g5wtm:/app/migrate.py
+</code></pre>
+<h2 id="git">Git</h2>
+<pre><code>git revert HEAD~1
 </code></pre></div>
             </div>
         </div>
@@ -274,5 +281,5 @@ kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified cp scripts/migrate.py vi
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2020-10-22 19:48:27.644611+00:00
+Build Date UTC : 2020-10-22 20:24:07.517013+00:00
 -->
