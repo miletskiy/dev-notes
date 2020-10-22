@@ -110,3 +110,4 @@ For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 
 ## Git
     git revert HEAD~1
+    git checkout <branch_name> <file_name>
