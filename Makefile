@@ -5,3 +5,5 @@ SHELL := /bin/zsh
 
 build:
 	mkdocs build
+	cp -r ./site/. ./docs
+	rm -r site
