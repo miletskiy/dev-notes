@@ -21,10 +21,31 @@
     cp -R dev-notes /Users/miletskiy/Data/professional/dev_notes/
 
     pip install -r requirements/base.txt --use-feature=2020-resolver
+    pip install "celery>4.4.2,<5.0.0"
 
-    List of all env variables
+    # List of all env variables:
     import os
     os.environ
+
+    # Give the execution permission for user only:
+
+    chmod +x ./import_db.zsh
+
+    # Give the execution permission for user only:
+
+    chmod u+x ./import_db.zsh
+
+    find ~/Data/projects -iname '*'.sql
+
+
+## SSH
+    https://gist.github.com/Icebreaker454/edbfc1214c6b97b44e86189f1b726a93
+
+    Forward Tunnel: map port from remote machine/network on local machine
+    ssh -L $LOCAL_PORT:$REMOTE_HOST:$REMOTE_PORT $USER@$SERVER
+
+    Reverse Tunnel: make local port accessable to remote machine
+    ssh -R $REMOTE_PORT:$LOCAL_HOST:$LOCAL_PORT $USER@$SERVER
 
 
 ## Postgres SQL
@@ -64,6 +85,10 @@
 
     pg_restore --verbose --clean --no-acl --no-owner --host=localhost --dbname=vital_signs_service_db --username=vital_signs_service_user dump_vs.sql
 
+    docker exec -it postgres_container_name psql your_connection_string
+    docker-compose exec postgres bash
+
+
 ## Django
 
     python manage.py startapp pharmacy -v 3   # New app verbose mode
@@ -79,6 +104,7 @@
     smiletskyi
     smiletskyi@intellias.com
     p@ssw0rd
+
 
 ## Flask
 
@@ -120,6 +146,8 @@
     kubectx
     kubectx stg
 
+    kubectl get pods | grep Evicted | awk '{print $1}' | xargs kubectl delete pod
+
 ## Git
     git revert HEAD~1
     git checkout <branch_name> <file_name>
@@ -134,11 +162,17 @@
     git push --tags
     git tag --delete 0.15.0
     git push --delete origin 0.15.0
+    git diff 4bb1ff33  1f6e1e5c
+    <!-- git diff 4bb1ff33~  1f6e1e5c -->
 
 
 ## Docker
     docker-compose up
     docker-compose exec kong kong reload
+        ports:
+            - 15432:5432
+        command: ["postgres", "-c", "log_statement=all"] # uncomment it to log all queries
+
 
 ## Gitlab CI/CD
     CI_BUILD_NO_CACHE: yes
