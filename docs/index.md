@@ -173,6 +173,7 @@
             - 15432:5432
         command: ["postgres", "-c", "log_statement=all"] # uncomment it to log all queries
 
+    docker rm $(docker ps -a -q)
 
 ## Gitlab CI/CD
     CI_BUILD_NO_CACHE: yes
