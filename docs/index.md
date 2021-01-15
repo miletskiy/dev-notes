@@ -83,10 +83,13 @@
     SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'vital_signs_service_db' AND pid <> pg_backend_pid();
     GRANT CONNECT ON DATABASE vital_signs_service_db TO public;
 
+    pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER -F t -d $DB_NAME > dump.tar
+
     pg_restore --verbose --clean --no-acl --no-owner --host=localhost --dbname=vital_signs_service_db --username=vital_signs_service_user dump_vs.sql
 
     docker exec -it postgres_container_name psql your_connection_string
     docker-compose exec postgres bash
+
 
 
 ## Django
@@ -99,6 +102,7 @@
     python manage.py migrate core zero  # Back to the initial DB state
 
     python manage.py showmigrations profiles  # Show information about migrations
+    ./manage.py migrate --fake some_app
 
     python manage.py createsuperuser
     smiletskyi
@@ -138,6 +142,8 @@
 
     kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified logs individual-service-production-b66cd84c-cd7fv --since=5m -f
 
+    kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified describe pod individual-service-production-b66cd84c-cd7fv
+
     watch "kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified get pod -o wide | grep indi"
 
     kubectl --kubeconfig ~/Data/Intellias/keys/kube/unified cp scripts/migrate.py vital-signs-service-production-support-6bf69c5585-g5wtm:/app/migrate.py
@@ -164,6 +170,8 @@
     git push --delete origin 0.15.0
     git diff 4bb1ff33  1f6e1e5c
     <!-- git diff 4bb1ff33~  1f6e1e5c -->
+    git branch -d the_local_branch
+    git push origin --delete the_remote_branch
 
 
 ## Docker
@@ -180,6 +188,23 @@
 
 ## Celery
     celery -A celery_app worker -l INFO -Q default,db_tasks -c 4 -B
+
+## Heroku
+    heroku login
+    heroku logs --tail
+    heroku ps -a tgbarber
+    heroku ps:scale web=1
+    heroku config
+    heroku addons
+    heroku pg
+    heroku run bash
+    heroku pg:psql postgresql-shallow-23238 --app tgbarber
+    heroku config:set DEVELOPMENT=False
+    heroku config:set DJANGO_LOG_LEVEL='DEBUG'
+    heroku config:set ALL_LOG_LEVEL='INFO'
+    heroku run python manage.py showmigrations
+    heroku run python manage.py migrate
+    heroku run python manage.py createsuperuser
 
 
 # MkDocs
