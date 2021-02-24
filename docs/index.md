@@ -10,13 +10,16 @@
     sudo killall -HUP mDNSResponder
 
     ps -fA | grep flask
+    ps | grep manage.py
+    kill -9 47151 47245
+
+    ps -ef | grep 5433
+    kill 91256
 
     ssh-add -l
     ssh-add -L
 
     ssh -fN -A -L 5433:10.12.50.15:5432 centos@10.12.50.15
-    ps -ef | grep 5433
-    kill 91256
 
     cp -R dev-notes /Users/miletskiy/Data/professional/dev_notes/
 
@@ -109,6 +112,10 @@
     smiletskyi@intellias.com
     p@ssw0rd
 
+    ./manage.py shell
+    from django.conf import settings
+    settings.API_GEE_YAKEEN_QUERY_BASE_URL
+
 
 ## Flask
 
@@ -127,7 +134,7 @@
 
     flask shell
     from flask import current_app
-    current_app.config.get("LEAN_STORED_PROCEDURES_DB_HOST")
+    current_app.config.get("SQLALCHEMY_DATABASE_URI")
 
 ## Links
 
@@ -173,9 +180,20 @@
     git branch -d the_local_branch
     git push origin --delete the_remote_branch
 
+    git grep <regexp> $(git rev-list --all)
+    git grep assign_questionnaire $(git rev-list --all)
+    git rev-list --all | xargs git grep assign_questionnaire
+
+    git checkout <old_name>
+    git branch -m <new_name>
+    git push origin -u <new_name>
+    git push origin --delete <old_name>
+    [How To Rename a Local and Remote Git Branch](https://linuxize.com/post/how-to-rename-local-and-remote-git-branch/)
+
 
 ## Docker
     docker-compose up
+    docker-compose up <service_name>
     docker-compose exec kong kong reload
         ports:
             - 15432:5432
@@ -205,6 +223,10 @@
     heroku run python manage.py showmigrations
     heroku run python manage.py migrate
     heroku run python manage.py createsuperuser
+    heroku run python manage.py set_bot_webhook
+    heroku run make shell
+    heroku run make webhook
+    heroku config:set WEB_CONCURRENCY=1
 
 
 # MkDocs
