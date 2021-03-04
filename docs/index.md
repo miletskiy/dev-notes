@@ -40,6 +40,12 @@
 
     find ~/Data/projects -iname '*'.sql
 
+    # Using netstat to see the listening processes
+    <!-- netstat -tulnp -->
+    netstat -ap tcp
+
+    lsof -Pn -i4 | grep 5432
+
 
 ## SSH
     https://gist.github.com/Icebreaker454/edbfc1214c6b97b44e86189f1b726a93
@@ -85,6 +91,7 @@
     REVOKE CONNECT ON DATABASE vital_signs_service_db FROM public;
     SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'vital_signs_service_db' AND pid <> pg_backend_pid();
     GRANT CONNECT ON DATABASE vital_signs_service_db TO public;
+    GRANT CONNECT ON DATABASE my_db TO my_user;
 
     pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER -F t -d $DB_NAME > dump.tar
 
@@ -92,6 +99,23 @@
 
     docker exec -it postgres_container_name psql your_connection_string
     docker-compose exec postgres bash
+
+    sudo su - postgres
+    sudo su -l postgres
+    psql -c "SHOW hba_file;"
+    vi /var/lib/pgsql/13/data/pg_hba.conf
+    # TYPE DATABASE USER CIDR-ADDRESS  METHOD
+    host  all  all 0.0.0.0/0 md5
+
+    vi /var/lib/pgsql/13/data/postgresql.conf
+    listen_addresses = '*'
+
+    systemctl list-units|grep postgresql
+    sudo systemctl restart postgresql-13.service
+
+    https://pgcookbook.ru/article/psql.html
+    \x
+    Expanded display is on.
 
 
 
@@ -193,13 +217,42 @@
 
 ## Docker
     docker-compose up
-    docker-compose up <service_name>
+    docker-compose up <service_name> -d
+    docker-compose down
+    docker-compose down --volumes --remove-orphans
+    docker-compose logs -f todo-app
     docker-compose exec kong kong reload
         ports:
             - 15432:5432
         command: ["postgres", "-c", "log_statement=all"] # uncomment it to log all queries
 
+    docker build -t miletskiy/todo-application:v3 .
+    docker run --rm --name some -dp 80:80 docker/getting-started
+
+    docker volume create todo-node-db
+    docker run -dp 3030:3000 -v todo-node-db:/etc/todos miletskiy/todo-application:v2
+    docker volume inspect todo-node-db
+    docker run -d --name bubunta -p 80:8080 ubuntu
+    docker container start 9e877b6fa2a3
+
+    docker ps -a
     docker rm $(docker ps -a -q)
+    docker rm f05be87ef3c2 e31cae6b4df2 <CONTAINER ID>
+    docker rm -f <the-container-id>
+    docker image ls
+    docker images
+    docker image history miletskiy/todo-application:v3
+    docker images --filter "dangling=true"
+
+
+    docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+    docker tag miletskiy/todo-application miletskiy/todo-application:v1
+    docker push miletskiy/todo-application:v1
+
+    docker network create node-todo-app
+    docker network ls
+    docker network inspect node-todo-app
+
 
 ## Gitlab CI/CD
     CI_BUILD_NO_CACHE: yes
