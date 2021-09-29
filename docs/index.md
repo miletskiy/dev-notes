@@ -21,6 +21,8 @@
 
     ssh -fN -A -L 5433:10.12.50.15:5432 centos@10.12.50.15
 
+    rm -r dir_name
+
     cp -R dev-notes /Users/miletskiy/Data/professional/dev_notes/
 
     pip install -r requirements/base.txt --use-feature=2020-resolver
@@ -46,6 +48,17 @@
 
     lsof -Pn -i4 | grep 5432
 
+    # Alpine
+    apk update
+    apk add busybox-extras
+    busybox-extras telnet 10.12.50.15 5432
+
+    apk add postgresql-dev
+    apk add postgresql-client
+    psql -U username -h localhost -p 5432 dbname
+
+    coverage html
+    coverage report
 
 ## SSH
     https://gist.github.com/Icebreaker454/edbfc1214c6b97b44e86189f1b726a93
@@ -75,6 +88,7 @@
     ALTER USER stats_service_user WITH PASSWORD 's3cr3t';
     CREATE DATABASE stats_service_db OWNER stats_service_user ENCODING 'utf8';
     DROP DATABASE IF EXISTS test_prescriptions_service_db;
+    DROP USER IF EXISTS mistery_visitor_user;
 
     ALTER USER ind_service_user WITH CREATEDB;
      or:
@@ -117,6 +131,9 @@
     \x
     Expanded display is on.
 
+    psql -c 'SHOW cluster_name'
+    sudo systemctl status postgresql-10.service
+
 
 
 ## Django
@@ -147,6 +164,7 @@
     flask db migrate --message 'District model'
     flask db upgrade
     flask db history  # Show information about migrations
+    flask db downgrade 838abcead1eb
 
     driver = 'postgresql'
     username = 'vs_service_user'
@@ -184,6 +202,10 @@
     kubectx stg
 
     kubectl get pods | grep Evicted | awk '{print $1}' | xargs kubectl delete pod
+    error: a container name must be specified for pod mv-redis-server-0, choose one of: [redis sentinel]
+    kubectl --kubeconfig ~/projects/Intellias/keys/mystery-visitor-k8s logs mv-redis-server-0 -c redis
+
+    kubectl --kubeconfig ~/projects/Intellias/keys/mv-k8s-qa logs -l app=mystery-visitor-service-qa --all-containers  --since=10m -f
 
 ## Git
     git revert HEAD~1
@@ -213,6 +235,8 @@
     git push origin -u <new_name>
     git push origin --delete <old_name>
     [How To Rename a Local and Remote Git Branch](https://linuxize.com/post/how-to-rename-local-and-remote-git-branch/)
+    git branch -d the_local_branch
+    git push origin --delete the_remote_branch
 
 
 ## Docker
@@ -253,12 +277,15 @@
     docker network ls
     docker network inspect node-todo-app
 
+    use `host.docker.internal` istead of `localhost`
+
 
 ## Gitlab CI/CD
     CI_BUILD_NO_CACHE: yes
 
 ## Celery
     celery -A celery_app worker -l INFO -Q default,db_tasks -c 4 -B
+    celery -A worker events
 
 ## Heroku
     heroku login
@@ -280,6 +307,50 @@
     heroku run make shell
     heroku run make webhook
     heroku config:set WEB_CONCURRENCY=1
+
+## SQL
+    DELETE FROM public.profiles_photo WHERE dependency_request_id = 80;
+    INSERT INTO public.profiles_photo (id, picture, dependency_request_id) VALUES (25, 'request_80/picture', 80);
+    UPDATE profiles_dependency SET dependent_request_id=1 WHERE parent_id=6 AND dependent_request_id IS NULL;
+
+##
+#!/bin/zsh
+
+# Variables
+SERVICE_NAME="appointments-service-qa"
+DB_NAME="qa_appointments_service"
+POSTGRES_USER="appointments_service"
+POSTGRES_PASSWORD="Ichu8angu0aiqu0v"
+POSTGRES_HOST="10.11.50.11"
+
+LOCAL_PG_PASSWORD=""
+LOCAL_PG_DB_NAME=""
+LOCAL_PG_USER=""
+LOCAL_PG_HOST="postgres"
+
+# Create dump in the container
+echo "Create dump in the container"
+
+kubectl exec \
+  -ti "$(kubectl \
+    get pods -l app=$SERVICE_NAME -o \
+    jsonpath='{.items[0].metadata.name}')" -- \
+  sh -c "apk update; apk add postgresql-client &&
+ PGPASSWORD=$POSTGRES_PASSWORD pg_dump -U $POSTGRES_USER -h $POSTGRES_HOST -F t $DB_NAME > dump.tar"
+
+# Copy dump to local machine
+echo "Copy dump to local machine"
+kubectl \
+  cp "$(kubectl \
+    get pods -l app=$SERVICE_NAME -o \
+    jsonpath='{.items[0].metadata.name}')":/app/dump.tar ./dump.tar
+
+# Load to local DB into the container
+echo "Load to local DB into the container"
+docker-compose exec web sh -c \
+  "apk update; apk add postgresql-client &&
+ PGPASSWORD=$LOCAL_PG_PASSWORD pg_restore -d $LOCAL_PG_DB_NAME dump.tar -c -U $LOCAL_PG_USER -h $LOCAL_PG_HOST"
+
 
 
 # MkDocs
