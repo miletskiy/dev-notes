@@ -164,7 +164,8 @@
     flask db migrate --message 'District model'
     flask db upgrade
     flask db history  # Show information about migrations
-    flask db downgrade 838abcead1eb
+    flask db current
+    flask db downgrade ff89fb70f3c2
 
     driver = 'postgresql'
     username = 'vs_service_user'
